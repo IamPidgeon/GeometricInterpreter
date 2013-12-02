@@ -200,17 +200,20 @@ fun eval_prog (e,env) =
 fun preprocess_prog e =
     case e of
 	LineSegment (x1,y1,x2,y2) => 
-	   let fun LS_rec (v1,v2) =
-		   if real_close(v1,v2) 
-		   then 
-		       if real_close (v1,y1)
-		       then Point (x1,y1)
-		       else LS_rec (y1,y2)
-		   else 
-		       if v1 < v2
-		       then e
-		       else LineSegment (x2, y2, x1, y1) 
-	   in LS_rec (x1,x2)
-	   end			 
+	    let 
+		y_comp = if y1 < y2
+			 then e	
+			 else LineSegment (x2,y2,x1,y1) 
+	    in
+		if real_close(x1,x2) 
+		then 
+		    if real_close (y1,y2)
+		    then Point (x1,y1)
+		    else y_comp
+		else 
+		    if x1 < x2
+		    then y_comp
+		    else LineSegment (x2,y2,x1,y1)
+	    end
       | _  => e
 
