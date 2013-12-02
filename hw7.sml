@@ -19,6 +19,7 @@ datatype geom_exp =
 	 | Intersect of geom_exp * geom_exp (* intersection of two lines, see pdf *)
 	 | Let of string * geom_exp * geom_exp (* let s = e1 in e2 *)
 	 | Var of string
+	 | Shift of real * real * geom_exp
 (* CHANGE add shifts for expressions of the form Shift(deltaX, deltaY, exp *)
 
 exception BadProgram of string
@@ -201,14 +202,16 @@ fun preprocess_prog e =
     case e of
 	LineSegment (x1,y1,x2,y2) => 
 	    let 
-		fun comp (v1, v2, if_true) = if v1 < v2
-					     then if_true	
-					     else LineSegment (x2,y2,x1,y1) 
+		fun comp (v1,v2,if_true) = if v1 < v2
+					   then if_true	
+					   else LineSegment (x2,y2,x1,y1) 
 	    in
 		case (real_close (x1,x2), real_close (y1,y2)) of
 		    (true,true) => Point (x1,y1)
 		 | (true,false) => comp (y1,y2,e)
 		 | (false,_) => comp (x1,x2,comp (y1,y2,e))
 	    end
+      | Let _ => preprocess_prog (eval_prog (e,[]))
+      | Shift _ => preprocess_prog (eval_prog (e,[]))
       | _  => e
 

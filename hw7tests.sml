@@ -79,6 +79,15 @@ in
     end
 end;
 
+let
+	val LineSegment(a,b,c,d) = preprocess_prog (Let("seg", LineSegment(3.2,4.0001,3.2,4.0002), Var("seg")))
+	val LineSegment(e,f,g,h) = LineSegment(3.2,4.0001,3.2,4.0002)
+in
+	if real_equal(a,e) andalso real_equal(b,f) andalso real_equal(c,g) andalso real_equal(d,h)
+	then (print "1-7: PASS: let works correctly in pre-process\n")
+	else (print "1-7: FAIL: let works incorrectly in pre-process\n")
+end;
+
 (* should write tests for all other constructors in geom_exp for production use *)
 
 let
@@ -86,8 +95,8 @@ let
 	val LineSegment(e,f,g,h) = LineSegment(~3.2,4.1,3.2,~4.1)
 in
 	if real_equal(a,e) andalso real_equal(b,f) andalso real_equal(c,g) andalso real_equal(d,h)
-	then (print "1-7: PASS: preprocess flips an improper LineSegment successfully from x\n")
-	else (print "1-7: FAIL: preprocess does not flip an improper LineSegment successfully from x\n")
+	then (print "1-8: PASS: preprocess flips an improper LineSegment successfully from x\n")
+	else (print "1-8: FAIL: preprocess does not flip an improper LineSegment successfully from x\n")
 end;
 
 let
@@ -104,15 +113,10 @@ let
 	val LineSegment(e,f,g,h) = LineSegment(~3.2,~4.1,~3.2,4.1)
 in
 	if real_equal(a,e) andalso real_equal(b,f) andalso real_equal(c,g) andalso real_equal(d,h)
-	then (print "1-8: PASS: preprocess flips an improper LineSegment successfully from y\n")
-	else (print "1-8: FAIL: preprocess does not flip an improper LineSegment successfully from y\n")
+	then (print "1-10: PASS: preprocess flips an improper LineSegment successfully from y\n")
+	else (print "1-10: FAIL: preprocess does not flip an improper LineSegment successfully from y\n")
 end;
 
-
-
-
-
-(*
 (* eval_prog tests with Shift*)
 let 
 	val Point(a,b) = (eval_prog (preprocess_prog (Shift(3.0, 4.0, Point(4.0,4.0))), []))
@@ -122,6 +126,7 @@ in
 	then (print "eval_prog with empty environment worked\n")
 	else (print "eval_prog with empty environment is not working properly\n")
 end;
+
 
 (* Using a Var *)
 let 
@@ -143,5 +148,3 @@ in
 	then (print "eval_prog with shadowing 'a' in environment is working properly\n")
 	else (print "eval_prog with shadowing 'a' in environment is not working properly\n")
 end;
-
-*)
