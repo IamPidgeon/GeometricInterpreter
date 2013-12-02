@@ -19,8 +19,7 @@ datatype geom_exp =
 	 | Intersect of geom_exp * geom_exp (* intersection of two lines, see pdf *)
 	 | Let of string * geom_exp * geom_exp (* let s = e1 in e2 *)
 	 | Var of string
-	 | Shift of real * real * geom_exp
-(* CHANGE add shifts for expressions of the form Shift(deltaX, deltaY, exp *)
+	 | Shift of real * real * geom_exp (* Shift(deltaX, deltaY, exp *)
 
 exception BadProgram of string
 exception Impossible of string
@@ -195,8 +194,16 @@ fun eval_prog (e,env) =
 	     NONE => raise BadProgram("var not found: " ^ s)
 	   | SOME (_,v) => v)
       | Let(s,e1,e2) => eval_prog (e2, ((s, eval_prog(e1,env)) :: env))
-      | Intersect(e1,e2) => intersect(eval_prog(e1,env), eval_prog(e2, env))
-(* CHANGE: Add a case for Shift expressions *)
+      | Intersect(e1,e2) => intersect (eval_prog (e1,env), eval_prog (e2,env))
+      | Shift(sx,sy,e) => (case e of
+			       NoPoints => NoPoints
+			     | Point(x,y) => Point (x + sx, y + sy)
+			     | Line(m,b) => Line (m, b + sy - (m * sx))
+			     | VerticalLine(x) => VerticalLine (x + sx)
+			     | LineSegment(x1,y1,x2,y2) => LineSegment(x1 + sx, y1 + sy, x2 + sx, y2 + sy)
+			     | _  => let val clean_e = eval_prog (e,env)
+				     in eval_prog (Shift(sx,sy,clean_e), env) 
+				     end)
 
 fun preprocess_prog e =
     case e of

@@ -123,8 +123,8 @@ let
 	val Point(c,d) = Point(7.0,8.0) 
 in
 	if real_equal(a,c) andalso real_equal(b,d)
-	then (print "eval_prog with empty environment worked\n")
-	else (print "eval_prog with empty environment is not working properly\n")
+	then (print "2-1: PASS: eval_prog with empty environment worked\n")
+	else (print "2-1: FAIL: eval_prog with empty environment is not working properly\n")
 end;
 
 
@@ -134,8 +134,18 @@ let
 	val Point(c,d) = Point(7.0,8.0) 
 in
 	if real_equal(a,c) andalso real_equal(b,d)
-	then (print "eval_prog with 'a' in environment is working properly\n")
-	else (print "eval_prog with 'a' in environment is not working properly\n")
+	then (print "2-2: PASS: eval_prog with 'a' in environment is working properly\n")
+	else (print "2-2: FAIL: eval_prog with 'a' in environment is not working properly\n")
+end;
+
+(* Using a Var *)
+let 
+	val Point(a,b) = (eval_prog (Shift(~5.0,4.0,Var "a"), [("a",Point(4.0,4.0))]))
+	val Point(c,d) = Point(~1.0,8.0) 
+in
+	if real_equal(a,c) andalso real_equal(b,d)
+	then (print "2-3: PASS: eval_prog with negative shift is working properly\n")
+	else (print "2-3: FAIL: eval_prog with negative shift is not working properly\n")
 end;
 
 
@@ -145,6 +155,6 @@ let
 	val Point(c,d) = Point(7.0,8.0) 
 in
 	if real_equal(a,c) andalso real_equal(b,d)
-	then (print "eval_prog with shadowing 'a' in environment is working properly\n")
-	else (print "eval_prog with shadowing 'a' in environment is not working properly\n")
+	then (print "2-3: PASS: eval_prog with shadowing 'a' in environment is working properly\n")
+	else (print "2-13 FAIL: eval_prog with shadowing 'a' in environment is not working properly\n")
 end;
