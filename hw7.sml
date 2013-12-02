@@ -11,12 +11,12 @@
                       (shifts added by you)
 *)
 datatype geom_exp = 
-           NoPoints
+           NoPoints (* represents empty set of points *)
 	 | Point of real * real (* represents point (x,y) *)
 	 | Line of real * real (* represents line (slope, intercept) *)
-	 | VerticalLine of real (* x value *)
-	 | LineSegment of real * real * real * real (* x1,y1 to x2,y2 *)
-	 | Intersect of geom_exp * geom_exp (* intersection expression *)
+	 | VerticalLine of real (* x value, infinite vertical line *)
+	 | LineSegment of real * real * real * real (* finite line segment: x1,y1 to x2,y2 *)
+	 | Intersect of geom_exp * geom_exp (* intersection of two lines, see pdf *)
 	 | Let of string * geom_exp * geom_exp (* let s = e1 in e2 *)
 	 | Var of string
 (* CHANGE add shifts for expressions of the form Shift(deltaX, deltaY, exp *)
@@ -36,7 +36,7 @@ fun real_close (r1,r2) =
 fun real_close_point (x1,y1) (x2,y2) = 
     real_close(x1,x2) andalso real_close(y1,y2)
 
-(* helper function to return the Line or VerticalLine containing 
+(* helper function to return the Line or VerticalLine made from
    points (x1,y1) and (x2,y2). Actually used only when intersecting 
    line segments, but might be generally useful *)
 fun two_points_to_line (x1,y1,x2,y2) = 
@@ -197,4 +197,20 @@ fun eval_prog (e,env) =
       | Intersect(e1,e2) => intersect(eval_prog(e1,env), eval_prog(e2, env))
 (* CHANGE: Add a case for Shift expressions *)
 
-(* CHANGE: Add function preprocess_prog of type geom_exp -> geom_exp *)
+fun preprocess_prog e =
+    case e of
+	LineSegment (x1,y1,x2,y2) => 
+	   let fun LS_rec (v1,v2) =
+		   if real_close(v1,v2) 
+		   then 
+		       if real_close (v1,y1)
+		       then Point (x1,y1)
+		       else LS_rec (y1,y2)
+		   else 
+		       if v1 < v2
+		       then e
+		       else LineSegment (x2, y2, x1, y1) 
+	   in LS_rec (x1,x2)
+	   end			 
+      | _  => e
+
