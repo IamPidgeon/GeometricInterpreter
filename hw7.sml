@@ -201,19 +201,14 @@ fun preprocess_prog e =
     case e of
 	LineSegment (x1,y1,x2,y2) => 
 	    let 
-		y_comp = if y1 < y2
-			 then e	
-			 else LineSegment (x2,y2,x1,y1) 
+		fun comp (v1, v2, if_true) = if v1 < v2
+					     then if_true	
+					     else LineSegment (x2,y2,x1,y1) 
 	    in
-		if real_close(x1,x2) 
-		then 
-		    if real_close (y1,y2)
-		    then Point (x1,y1)
-		    else y_comp
-		else 
-		    if x1 < x2
-		    then y_comp
-		    else LineSegment (x2,y2,x1,y1)
+		case (real_close (x1,x2), real_close (y1,y2)) of
+		    (true,true) => Point (x1,y1)
+		 | (true,false) => comp (y1,y2,e)
+		 | (false,_) => comp (x1,x2,comp (y1,y2,e))
 	    end
       | _  => e
 
