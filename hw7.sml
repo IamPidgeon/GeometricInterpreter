@@ -218,7 +218,8 @@ fun preprocess_prog e =
 		 | (true,false) => comp (y1,y2,e)
 		 | (false,_) => comp (x1,x2,comp (y1,y2,e))
 	    end
-      | Let _ => preprocess_prog (eval_prog (e,[]))
-      | Shift _ => preprocess_prog (eval_prog (e,[]))
+      | Let (s,exp1,exp2) => Let (s,preprocess_prog exp1,preprocess_prog exp2)
+      | Shift (sx,sy,exp) => Shift(sx,sy,preprocess_prog exp)
+      | Intersect (exp1,exp2) => Intersect (preprocess_prog exp1,preprocess_prog exp2) 
       | _  => e
 

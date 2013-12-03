@@ -11,6 +11,7 @@ use "hw7.sml";
 fun real_equal(x,y) = Real.compare(x,y) = General.EQUAL;
 
 (* a check_equal helper function would be useful here *)
+(* could make some higher level data constructs here for testing to reduce duplication *)
 
 (* Preprocess tests *)
 let
@@ -79,13 +80,15 @@ in
     end
 end;
 
-let
-	val LineSegment(a,b,c,d) = preprocess_prog (Let("seg", LineSegment(3.2,4.0001,3.2,4.0002), Var("seg")))
-	val LineSegment(e,f,g,h) = LineSegment(3.2,4.0001,3.2,4.0002)
+let val LS = LineSegment(~3.7,1.5,~3.7,1.5)
 in
+    let val Let(_,Point(a,b),Point(c,d)) = preprocess_prog (Let("x",LS,LS))
+	val Let(_,Point(e,f),Point(g,h)) = Let("x",Point(~3.7,1.5),Point(~3.7,1.5))
+    in
 	if real_equal(a,e) andalso real_equal(b,f) andalso real_equal(c,g) andalso real_equal(d,h)
-	then (print "1-7: PASS: let works correctly in pre-process\n")
-	else (print "1-7: FAIL: let works incorrectly in pre-process\n")
+	then (print "1-7: PASS: preprocess processes exps inside of Let correctly\n")
+	else (print "1-7: FAIL: preprocess processes exps inside of Let incorrectly\n")
+    end
 end;
 
 (* should write tests for all other constructors in geom_exp for production use *)
@@ -117,7 +120,36 @@ in
 	else (print "1-10: FAIL: preprocess does not flip an improper LineSegment successfully from y\n")
 end;
 
+
+let val LS = LineSegment(~3.7,1.5,~3.7,1.5)
+in
+    let 
+	val Intersect(Point(a,b),Point(c,d)) = preprocess_prog (Intersect(LS,LS))
+	val Intersect(Point(e,f),Point(g,h)) = Intersect(Point(~3.7,1.5),Point(~3.7,1.5))
+    in
+	if real_equal(a,e) andalso real_equal(b,f) andalso real_equal(c,g) andalso real_equal(d,h)
+	then (print "1-11: PASS: preprocess processes exps inside of Intersect correctly\n")
+	else (print "1-11: FAIL: preprocess processes exps inside of Intersect incorrectly\n")
+    end
+end;
+
+let val LS = LineSegment(~3.7,1.5,~3.7,1.5)
+in
+    let 
+	val Shift(_,_,Point(a,b)) = preprocess_prog (Shift(5.5,~1.2,LS))
+	val Shift(_,_,Point(c,d)) = Shift(5.5,~1.2,Point(~3.7,1.5))
+    in
+	if real_equal(a,c) andalso real_equal(b,d)
+	then (print "1-12: PASS: preprocess processes exp inside of Shift correctly\n")
+	else (print "1-12: FAIL: preprocess processes exp inside of Shift incorrectly\n")
+    end
+end;
+
+
+
+
 (* eval_prog tests with Shift*)
+
 let 
 	val Point(a,b) = (eval_prog (preprocess_prog (Shift(3.0, 4.0, Point(4.0,4.0))), []))
 	val Point(c,d) = Point(7.0,8.0) 
